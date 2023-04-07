@@ -1,23 +1,20 @@
 import { test, expect } from "@playwright/test";
 
 // Add consent cookie.
-test.beforeEach(async ({ page }) => {
-	await page.goto("https://areena.yle.fi/tv");
-
-	// Consent to necessary cookies if prompted
-	let consent_button = await page.locator('button[name="accept-necessary-consents"]');
-	if (await consent_button.count() > 0) {
-		consent_button.click();
-	}
+test.beforeEach(async ({ page, context }) => {
+	context.addCookies([{
+		name: 'yleconsent',
+		value: "v1|",
+		domain: '.yle.fi',
+		path: '/',
+	}])
 });
-
 /*
-// check cookies
+// Check cookies
 test.afterEach(async ({ context }) => {
 	console.log(await context.cookies("https://areena.yle.fi"));
 });
 */
-
 test.describe("Main page", () => {
 	test("Create YLE account", async ({ page }) => {
 		await page.goto("https://areena.yle.fi/tv");
@@ -32,7 +29,7 @@ test.describe("TV Guide", () => {
 		await page.goto("https://areena.yle.fi/tv/opas");
 
 		// Show past programs
-		await page.locator("#past-programs-toggle-checkbox").click();
+		await page.locator("input#past-programs-toggle-checkbox").click();
 
 		// find all schedule cards
 		let cards = await page.locator(".schedule-card").filter({
