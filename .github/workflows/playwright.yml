@@ -19,12 +19,16 @@ jobs:
               run: echo "PLAYWRIGHT_VERSION=$(node -e "console.log(require('./package-lock.json').dependencies['@playwright/test'].version)")" >> $GITHUB_ENV
 
             - name: Cache playwright binaries
-              uses: actions/cache@v3
               id: playwright-cache
+              uses: actions/cache@v3
+              env:
+                  cache-name: playwright-binaries-cache
               with:
                   path: |
                       ~/.cache/ms-playwright
                   key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}
+                  restore-keys: |
+                      ${{ runner.os }}-playwright-
 
             - run: npm ci
 
