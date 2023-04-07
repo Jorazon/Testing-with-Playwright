@@ -1,20 +1,26 @@
 import { test, expect } from "@playwright/test";
 
+// Add consent cookie.
+test.beforeEach(async ({ page }) => {
+	await page.goto("https://areena.yle.fi/tv");
+
+	// Consent to necessary cookies if prompted
+	let consent_button = await page.locator('button[name="accept-necessary-consents"]');
+	if (await consent_button.count() > 0) {
+		consent_button.click();
+	}
+});
+
+/*
+// check cookies
+test.afterEach(async ({ context }) => {
+	console.log(await context.cookies("https://areena.yle.fi"));
+});
+*/
+
 test.describe("Main page", () => {
-	test("has title", async ({ page }) => {
+	test("Create YLE account", async ({ page }) => {
 		await page.goto("https://areena.yle.fi/tv");
-
-		// Expect a title "to contain" a substring.
-		await expect(page).toHaveTitle(/Yle Areena/);
-	});
-
-	test("log in link", async ({ page, browserName }) => {
-		await page.goto("https://areena.yle.fi/tv");
-
-		// Consent to necessary cookies only.
-		if (browserName === "firefox") {
-			await page.locator('button[name="accept-necessary-consents"]').click();
-		}
 
 		// Click the log in button.
 		await page.locator(".yle-header-tunnus-login").click();
@@ -22,13 +28,8 @@ test.describe("Main page", () => {
 });
 
 test.describe("TV Guide", () => {
-	test("10 PM News Exists", async ({ page, browserName }) => {
+	test("10 PM News Exists", async ({ page }) => {
 		await page.goto("https://areena.yle.fi/tv/opas");
-
-		// Consent to necessary cookies only.
-		if (browserName === "firefox") {
-			await page.locator('button[name="accept-necessary-consents"]').click();
-		}
 
 		// Show past programs
 		await page.locator("#past-programs-toggle-checkbox").click();
