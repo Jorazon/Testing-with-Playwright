@@ -38,7 +38,7 @@ test.describe("Main page", () => {
 		await page.waitForLoadState("networkidle");
 
 		// Fill the form 
-		await login_form_frame_locator.getByRole("textbox", { name: "Sähköposti", exact: true }).fill("test1234");
+		await login_form_frame_locator.getByRole("textbox", { name: "Sähköposti", exact: true }).fill("test@test,test"); // Intentional mistaken comma in email
 		await login_form_frame_locator.getByRole("textbox", { name: "Salasana", exact: true }).fill("test1234");
 		await login_form_frame_locator.getByRole("combobox", { name: "Kuukausi" }).selectOption({ index: Math.floor(Math.random() * 12) });
 		await login_form_frame_locator.getByRole("combobox", { name: "Vuosi" }).selectOption({ index: Math.floor(Math.random() * 110) });
@@ -46,9 +46,8 @@ test.describe("Main page", () => {
 		// Submit
 		await login_form_frame_locator.getByRole("button", { name: "Luo Tunnus" }).click();
 
-		// Take screenshot
-		await login_form_locator.screenshot({ path: `img/${browserName}/luo-tunnus.png` });
-
+		// Expect email in wrong format message to exist
+		expect(await login_form_frame_locator.getByText("Tarkista sähköpostiosoitteen muoto.").count()).toBeGreaterThan(0);
 	});
 });
 
@@ -59,18 +58,85 @@ test.describe("TV Guide", () => {
 		// Show past programs
 		await page.getByRole("checkbox", { name: "Näytä menneet ohjelmat" }).click();
 
-		// find all schedule cards
-		let cards = await page.locator(".schedule-card").filter({
-			has: page.locator('time[itemprop="startDate"]', {
-				hasText: "22.00",
+		// find all scheduled program cards
+		let cards = await page.locator(".schedule-card")
+			// Filter programs that begin at 10 pm
+			.filter({
+				has: page.locator('time[itemprop="startDate"]', {
+					hasText: "22.00",
+				})
 			})
-		}).filter({
-			has: page.locator('span[itemprop="name"]', {
-				hasText: "Kymmenen uutiset",
-			})
+			// Filter programs titled "Kymmenen uutiset"
+			.filter({
+				has: page.locator('span[itemprop="name"]', {
+					hasText: "Kymmenen uutiset",
+				})
+			});
+
+		// One and only one should exist
+		expect(await cards.count()).toEqual(1);
+	});
+
+	test("Channel logos with proper labels", async ({ page, browserName }) => {
+		await page.goto("https://areena.yle.fi/tv/opas");
+
+		// Expected values
+		const channels = [
+			{ "label": "Yle TV1", "style": "yle-tv1_vtc.png" },
+			{ "label": "Yle TV2", "style": "yle-tv2_vtc.png" },
+			{ "label": "Yle Teema Fem", "style": "yle-teema-fem_vt.png" },
+			{ "label": "Yle Areena", "style": "yle-areena_vt.png" },
+			{ "label": "MTV3", "style": "MTV3_vtc.png" },
+			{ "label": "Nelonen", "style": "Nelonen_vtc.png" },
+			{ "label": "Sub", "style": "Sub_vtc.png" },
+			{ "label": "TV5", "style": "TV5_vt.png" },
+			{ "label": "Liv", "style": "Liv_vtc.png" },
+			{ "label": "JIM", "style": "JIM_vtc.png" },
+			{ "label": "Kutonen", "style": "Kutonen_vtc.png" },
+			{ "label": "TLC", "style": "TLC_vtc.png" },
+			{ "label": "STAR Channel", "style": "STAR%20Channel_vtc.png" },
+			{ "label": "Ava", "style": "Ava_vtc.png" },
+			{ "label": "Hero", "style": "Hero_vtc.png" },
+			{ "label": "Frii", "style": "Frii_vtc.png" },
+			{ "label": "National Geographic", "style": "National%20Geographic_vt.png" },
+			{ "label": "TV Finland", "style": "tv-finland_vt.png" },
+		];
+
+		const headers = await page.locator(".channel-header__logo").all();
+
+		// Number of found channel headers is as expected
+		expect(headers.length).toBe(channels.length);
+
+		// Map to attribute object
+		const matches = await Promise.all(headers.map(async (element, index) => {
+			let label = await element.getAttribute("aria-label");
+			let style = await element.getAttribute("style");
+
+			//console.log(index, label, style);
+
+			return { "label": label, "style": style };
+		}));
+
+		// Compare labels
+		const labels_match = matches.every(({ label, style }, index) => {
+			const label_matches = label?.includes(channels[index].label);
+
+			//console.log(index, label_matches);
+
+			return label_matches;
 		});
 
-		// should be just the one
-		expect(await cards.count()).toEqual(1);
+		// Compare images
+		const images_match = matches.every(({ label, style }, index) => {
+			const image_matches = style?.includes(channels[index].style);
+
+			//console.log(index, image_matches);
+
+			return image_matches;
+		});
+
+		expect(labels_match).toBeTruthy();
+		expect(images_match).toBeTruthy();
+
 	});
 });
