@@ -162,10 +162,10 @@ test.describe("Kummeli", () => {
 		await page.waitForLoadState("networkidle");
 
 		const episodes = await page.locator(".CardPage_listItem__JRVg1");
-		console.log("Episode count: ", await episodes.count());
+		//console.log("Episode count: ", await episodes.count());
 
 		const ep5 = await episodes.nth(4);
-		await ep5.screenshot({ path: `img/${browserName}/kummeli airing.png` });
+		//await ep5.screenshot({ path: `img/${browserName}/kummeli airing.png` });
 
 		expect(await ep5.getByText("ti 8.3.2016").count()).toBe(1);
 	});
@@ -176,10 +176,10 @@ test.describe("Kummeli", () => {
 		await page.waitForLoadState("networkidle");
 
 		const episodes = await page.locator(".CardPage_listItem__JRVg1");
-		console.log("Episode count: ", await episodes.count());
+		//console.log("Episode count: ", await episodes.count());
 
 		const ep5 = await episodes.nth(4);
-		await ep5.screenshot({ path: `img/${browserName}/kummeli name.png` });
+		//await ep5.screenshot({ path: `img/${browserName}/kummeli name.png` });
 
 		expect(await ep5.getByText("5. Kummeli ").count()).toBe(1);
 	});
