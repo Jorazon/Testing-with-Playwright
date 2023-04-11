@@ -102,6 +102,7 @@ test.describe("TV Guide", () => {
 			{ "label": "TV Finland", "style": "tv-finland_vt.png" },
 		];
 
+		// Find all channel logos
 		const headers = await page.locator(".channel-header__logo").all();
 
 		// Number of found channel headers is as expected
@@ -111,27 +112,21 @@ test.describe("TV Guide", () => {
 		const matches = await Promise.all(headers.map(async (element, index) => {
 			let label = await element.getAttribute("aria-label");
 			let style = await element.getAttribute("style");
-
 			//console.log(index, label, style);
-
 			return { "label": label, "style": style };
 		}));
 
 		// Compare labels
 		const labels_match = matches.every(({ label, style }, index) => {
 			const label_matches = label?.includes(channels[index].label);
-
 			//console.log(index, label_matches);
-
 			return label_matches;
 		});
 
 		// Compare images
 		const images_match = matches.every(({ label, style }, index) => {
 			const image_matches = style?.includes(channels[index].style);
-
 			//console.log(index, image_matches);
-
 			return image_matches;
 		});
 
