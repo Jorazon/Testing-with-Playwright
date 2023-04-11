@@ -8,6 +8,7 @@ Playwright UI testing
 git clone https://github.com/Jorazon/Testing-with-Playwright.git
 cd Testing-with-Playwright
 npm i
+npx playwright install
 ```
 
 ### Running tests
