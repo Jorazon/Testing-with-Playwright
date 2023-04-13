@@ -90,63 +90,97 @@ test.describe("TV Guide", () => {
 		expect(await cards.count()).toEqual(1);
 	});
 
-	test("Channel logos with proper labels", async ({ page, browserName }) => {
+	test("Channel logos with correct images", async ({ page, browserName }) => {
 		await page.goto("https://areena.yle.fi/tv/opas");
 
 		// Expected values
-		const channels = [
-			{ label: "Yle TV1", style: "yle-tv1_vtc.png" },
-			{ label: "Yle TV2", style: "yle-tv2_vtc.png" },
-			{ label: "Yle Teema Fem", style: "yle-teema-fem_vt.png" },
-			{ label: "Yle Areena", style: "yle-areena_vt.png" },
-			{ label: "MTV3", style: "MTV3_vtc.png" },
-			{ label: "Nelonen", style: "Nelonen_vtc.png" },
-			{ label: "Sub", style: "Sub_vtc.png" },
-			{ label: "TV5", style: "TV5_vt.png" },
-			{ label: "Liv", style: "Liv_vtc.png" },
-			{ label: "JIM", style: "JIM_vtc.png" },
-			{ label: "Kutonen", style: "Kutonen_vtc.png" },
-			{ label: "TLC", style: "TLC_vtc.png" },
-			{ label: "STAR Channel", style: "STAR%20Channel_vtc.png" },
-			{ label: "Ava", style: "Ava_vtc.png" },
-			{ label: "Hero", style: "Hero_vtc.png" },
-			{ label: "Frii", style: "Frii_vtc.png" },
-			{ label: "National Geographic", style: "National%20Geographic_vt.png" },
-			{ label: "TV Finland", style: "tv-finland_vt.png" },
+		const images = [
+			"yle-tv1_vtc.png",
+			"yle-tv2_vtc.png",
+			"yle-teema-fem_vt.png",
+			"yle-areena_vt.png",
+			"MTV3_vtc.png",
+			"Nelonen_vtc.png",
+			"Sub_vtc.png",
+			"TV5_vt.png",
+			"Liv_vtc.png",
+			"JIM_vtc.png",
+			"Kutonen_vtc.png",
+			"TLC_vtc.png",
+			"STAR%20Channel_vtc.png",
+			"Ava_vtc.png",
+			"Hero_vtc.png",
+			"Frii_vtc.png",
+			"National%20Geographic_vt.png",
+			"tv-finland_vt.png",
 		];
 
 		// Find all channel logos
 		const headers = await page.locator(".channel-header__logo").all();
 
 		// Number of found channel headers is as expected
-		expect(headers.length).toBe(channels.length);
+		expect(headers.length).toBe(images.length);
 
 		// Map to attribute object
-		const matches = await Promise.all(
+		const attributes = await Promise.all(
 			headers.map(async (element, index) => {
-				let label = await element.getAttribute("aria-label");
 				let style = await element.getAttribute("style");
-				//console.log(index, label, style);
-				return { label: label, style: style };
+				return style;
+			}),
+		);
+
+		// Compare images
+		const images_match = attributes.every((style, index) => {
+			return style?.includes(images[index]);
+		});
+
+		expect(images_match).toBeTruthy();
+	});
+
+	test("Channel logos with correct labels", async ({ page, browserName }) => {
+		await page.goto("https://areena.yle.fi/tv/opas");
+
+		// Expected values
+		const labels = [
+			"Yle TV1",
+			"Yle TV2",
+			"Yle Teema Fem",
+			"Yle Areena",
+			"MTV3",
+			"Nelonen",
+			"Sub",
+			"TV5",
+			"Liv",
+			"JIM",
+			"Kutonen",
+			"TLC",
+			"STAR Channel",
+			"Ava",
+			"Hero",
+			"Frii",
+			"National Geographic",
+			"TV Finland",
+		];
+
+		// Find all channel logos
+		const headers = await page.locator(".channel-header__logo").all();
+
+		// Number of found channel headers is as expected
+		expect(headers.length).toBe(labels.length);
+
+		// Map to attribute object
+		const attributes = await Promise.all(
+			headers.map(async (element, index) => {
+				return await element.getAttribute("aria-label");
 			}),
 		);
 
 		// Compare labels
-		const labels_match = matches.every(({ label, style }, index) => {
-			const label_matches = label?.includes(channels[index].label);
-			//console.log(index, label_matches);
-			return label_matches;
-		});
-
-		// Compare images
-		const images_match = matches.every(({ label, style }, index) => {
-			const image_matches = style?.includes(channels[index].style);
-			//console.log(index, image_matches);
-			return image_matches;
+		const labels_match = attributes.every((label, index) => {
+			return label?.includes(labels[index]);
 		});
 
 		expect(labels_match).toBeTruthy();
-		expect(images_match).toBeTruthy();
 	});
 });
 
