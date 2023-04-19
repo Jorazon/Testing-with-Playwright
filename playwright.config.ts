@@ -1,4 +1,5 @@
-import { defineConfig, devices } from "@playwright/test";
+import { defineConfig } from "@playwright/test";
+import devices from "@playwright/test";
 
 /**
  * Read environment variables from file.
@@ -36,6 +37,7 @@ export default defineConfig({
 
 	/* Configure projects for major browsers */
 	projects: [
+		/*
 		{
 			name: "chromium",
 			use: { ...devices["Desktop Chrome"] },
@@ -45,6 +47,39 @@ export default defineConfig({
 			name: "firefox",
 			use: { ...devices["Desktop Firefox"] },
 		},
+		*/
+		{
+			name: "browserstack_chromium_win10",
+			use: {
+				connectOptions: {
+					wsEndpoint: `wss://cdp.browserstack.com/playwright?caps=` +
+						`${encodeURIComponent(JSON.stringify({
+							browser: 'playwright-chromium',
+							os: 'windows',
+							os_version: '10',
+							'browserstack.username': process.env.BROWSERSTACK_USERNAME || 'oskaripahkala_ZpO7Bw',
+							'browserstack.accessKey': process.env.BROWSERSTACK_ACCESS_KEY || 'U72coM2fWuywa17sgiZb',
+						}))}`
+				}
+			}
+		},
+		/*
+		{
+			name: "browserstack_firefox_osx",
+			use: {
+				connectOptions: {
+					wsEndpoint: `wss://cdp.browserstack.com/playwright?caps=` +
+						`${encodeURIComponent(JSON.stringify({
+							browser: 'playwright-firefox',
+							os: 'os x',
+							os_version: 'Ventura',
+							'browserstack.username': process.env.BROWSERSTACK_USERNAME || 'oskaripahkala_ZpO7Bw',
+							'browserstack.accessKey': process.env.BROWSERSTACK_ACCESS_KEY || 'U72coM2fWuywa17sgiZb',
+						}))}`
+				}
+			}
+		},
+		*/
 		/*
 		{
 			name: "edge",

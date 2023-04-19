@@ -1,5 +1,6 @@
-import { test, expect, Page, TestInfo } from "@playwright/test";
+import { test, expect, TestInfo } from "@playwright/test";
 import { injectAxe, checkA11y, getViolations, reportViolations } from 'axe-playwright';
+import { Page } from "playwright-core";
 
 /**
  * Runs axe accessibility checks for a playwright page
